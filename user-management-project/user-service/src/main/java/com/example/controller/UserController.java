@@ -3,14 +3,18 @@ package com.example.controller;
 import java.net.URI;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -20,8 +24,9 @@ import com.example.service.AddressService;
 import com.example.service.UserService;
 
 
-
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
+@RequestMapping("/users")
 public class UserController {
 	
 	
@@ -31,8 +36,8 @@ public class UserController {
 	@Autowired 
 	AddressService addressService;
 	
-	@PostMapping("/user")
-	public ResponseEntity<User> createUser(@RequestBody User user) {
+	@PostMapping("/")
+	public ResponseEntity<User> createUser(HttpServletRequest request, @RequestBody User user) {
 		
 		User createdUser = userService.createUser(user);
 		
@@ -41,7 +46,7 @@ public class UserController {
 	}
 	
 	
-	@GetMapping("/user/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<User> retrieveUser(@PathVariable Long id) {
 		
 		User user = userService.retrieveUser(id);
@@ -52,7 +57,13 @@ public class UserController {
 	}
 	
 	
-	@PostMapping("/user/{id}")
+	@GetMapping("/")
+	public List<User> retrieveAllUsers() {
+		return userService.retrieveAllUsers();
+	}
+	
+	
+	@PostMapping("/{id}")
 	public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
 		
 		User updatedUser = userService.updateUser(id, user);
@@ -64,15 +75,14 @@ public class UserController {
 	}
 	
 	
-	@DeleteMapping("/user/{id}")
+	@DeleteMapping("/{id}")
 	public void deleteUser(@PathVariable Long id) {
 		
 		userService.deleteUser(id);
 	}
 	
-	
     // http://localhost:8080/user/1/address  [{ "detail": "Ankara"},{ "detail": "Çankaya"}] 
-	@PostMapping("/user/{id}/address")
+	@PostMapping("/{id}/address")
 	public ResponseEntity<List<Address>> addAddressToUser(@PathVariable Long id, @RequestBody List<Address> addresses) {
 		
 		List<Address> savedAddresses = addressService.saveAddress(id, addresses);
@@ -80,9 +90,8 @@ public class UserController {
 		return new ResponseEntity<List<Address>>(savedAddresses,HttpStatus.CREATED);
 	}
 	
-	
     // http://localhost:8080/user/1/address 
-	@GetMapping("/user/{id}/address")
+	@GetMapping("/{id}/address")
 	public ResponseEntity<List<Address>> findUserAddress(@PathVariable Long id) {
 		
 		List<Address> addresses = addressService.findAddress(id);
@@ -91,5 +100,5 @@ public class UserController {
 		}
 		return new ResponseEntity<List<Address>>(addresses, HttpStatus.FOUND);
 	}
-
+	
 }
